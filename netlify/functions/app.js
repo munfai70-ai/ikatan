@@ -3,21 +3,31 @@ const path = require('path');
 
 exports.handler = async (event, context) => {
   try {
-    // In Netlify, __dirname = /var/task/netlify/functions
-    // So go up 2 levels to reach repo root
-    const htmlPath = path.resolve(__dirname, '..', '..', 'index.html');
-    
-    if (!fs.existsSync(htmlPath)) {
-      // Debug: show what files exist near __dirname
-      const parent = path.resolve(__dirname, '..', '..');
-      const files = fs.existsSync(parent) ? fs.readdirSync(parent) : ['parent not found'];
-      return {
-        statusCode: 500,
-        body: 'index.html not found at: ' + htmlPath + '\n__dirname: ' + __dirname + '\nFiles at root: ' + files.join(', ')
-      };
+    // Netlify bundles functions - try these paths in order
+    const attempts = [
+      path.join(__dirname, 'index.html'),           // bundled alongside function
+      '/var/task/index.html',                        // Netlify Lambda root
+      '/var/task/netlify/functions/index.html',      // inside functions folder
+    ];
+
+    // Debug: show dirname and list files
+    let debugInfo = '__dirname: ' + __dirname + '\n';
+    try { debugInfo += '/var/task files: ' + fs.readdirSync('/var/task').join(', ') + '\n'; } catch(e) {}
+    try { debugInfo += '__dirname files: ' + fs.readdirSync(__dirname).join(', ') + '\n'; } catch(e) {}
+
+    let html = null;
+    for (const p of attempts) {
+      if (fs.existsSync(p)) {
+        html = fs.readFileSync(p, 'utf8');
+        debugInfo += 'Found at: ' + p;
+        break;
+      }
     }
 
-    let html = fs.readFileSync(htmlPath, 'utf8');
+    if (!html) {
+      return { statusCode: 500, body: 'index.html not found.\n' + debugInfo };
+    }
+
     html = html.split('__SUPABASE_URL__').join(process.env.SUPABASE_URL || '');
     html = html.split('__SUPABASE_KEY__').join(process.env.SUPABASE_KEY || '');
     html = html.split('__APP_PASSWORD__').join(process.env.APP_PASSWORD || '');
@@ -28,9 +38,6 @@ exports.handler = async (event, context) => {
       body: html,
     };
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: 'Error: ' + err.message + '\n__dirname: ' + __dirname
-    };
+    return { statusCode: 500, body: 'Error: ' + err.message };
   }
 };

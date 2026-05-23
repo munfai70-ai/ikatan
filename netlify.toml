@@ -1,12 +1,7 @@
 [build]
   publish = "."
   functions = "netlify/functions"
-
-[[redirects]]
-  from = "/"
-  to = "/.netlify/functions/app"
-  status = 200
-  force = true
+  command = "cp index.html netlify/functions/index.html"
 
 [[redirects]]
   from = "/*"
