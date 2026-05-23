@@ -1,7 +1,7 @@
 [build]
   publish = "."
   functions = "netlify/functions"
-  command = "cp index.html netlify/functions/index.html"
+  command = "mkdir -p netlify/functions && cp index.html netlify/functions/index.html && echo 'Copied index.html to functions'"
 
 [[redirects]]
   from = "/*"

@@ -3,31 +3,17 @@ const path = require('path');
 
 exports.handler = async (event, context) => {
   try {
-    // Netlify bundles functions - try these paths in order
-    const attempts = [
-      path.join(__dirname, 'index.html'),           // bundled alongside function
-      '/var/task/index.html',                        // Netlify Lambda root
-      '/var/task/netlify/functions/index.html',      // inside functions folder
-    ];
+    // index.html is copied here by build command
+    const htmlPath = path.join(__dirname, 'index.html');
 
-    // Debug: show dirname and list files
-    let debugInfo = '__dirname: ' + __dirname + '\n';
-    try { debugInfo += '/var/task files: ' + fs.readdirSync('/var/task').join(', ') + '\n'; } catch(e) {}
-    try { debugInfo += '__dirname files: ' + fs.readdirSync(__dirname).join(', ') + '\n'; } catch(e) {}
-
-    let html = null;
-    for (const p of attempts) {
-      if (fs.existsSync(p)) {
-        html = fs.readFileSync(p, 'utf8');
-        debugInfo += 'Found at: ' + p;
-        break;
-      }
+    if (!fs.existsSync(htmlPath)) {
+      return {
+        statusCode: 500,
+        body: 'index.html not found at: ' + htmlPath + '\nFiles here: ' + fs.readdirSync(__dirname).join(', ')
+      };
     }
 
-    if (!html) {
-      return { statusCode: 500, body: 'index.html not found.\n' + debugInfo };
-    }
-
+    let html = fs.readFileSync(htmlPath, 'utf8');
     html = html.split('__SUPABASE_URL__').join(process.env.SUPABASE_URL || '');
     html = html.split('__SUPABASE_KEY__').join(process.env.SUPABASE_KEY || '');
     html = html.split('__APP_PASSWORD__').join(process.env.APP_PASSWORD || '');
