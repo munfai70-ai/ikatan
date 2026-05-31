@@ -119,11 +119,11 @@
      RESPONSIVE — tablet, phone, small phone
      CSS only — no logic/function changes
   ═══════════════════════════════════════ */
- 
+
   /* ── TABLET iPad 11-inch LANDSCAPE only (835–1194px) ── */
   /* Portrait (≤834px) falls into mobile styles below       */
   @media (min-width: 835px) and (max-width: 1194px) {
- 
+
     /* Header — single row, comfortable */
     header          { padding: 0 20px; gap: 12px }
     .hdr-title h1   { font-size: 13px }
@@ -131,46 +131,46 @@
     .stat           { padding: 5px 12px; min-width: 64px }
     .stat .v        { font-size: 18px }
     .stat .l        { font-size: 9px }
- 
+
     /* Nav */
     .nav  { padding: 0 20px }
     .ntab { padding: 12px 16px; font-size: 12px }
- 
+
     /* Two-column — keep side by side like desktop */
     .two-col { grid-template-columns: 300px 1fr }
     .lpane   { padding: 18px }
- 
+
     /* Log toolbar — keep inline */
     .logtop             { padding: 10px 20px; gap: 10px }
     .logtop select      { width: 140px !important }
     .logtop .srch input { width: 180px !important }
- 
+
     /* Tables */
     thead th { padding: 8px 10px; font-size: 11px }
     tbody td  { padding: 10px 10px; font-size: 12px }
- 
+
     /* Card form */
     .card { padding: 16px }
- 
+
     /* KPI cards — 4 columns */
     div[style*="grid-template-columns:repeat(4"] { gap: 10px !important; padding: 12px !important }
- 
+
     /* Summary margin */
     div[style*="margin:0 16px 16px"] { margin: 0 12px 12px !important }
- 
+
     /* Right pane padding */
     div[style*="padding:20px"] { padding: 16px !important }
- 
+
     /* Search box */
     div[style*="width:220px"] { width: 190px !important }
- 
+
     /* Modal */
     .modal { width: 500px }
- 
+
     /* Stabs */
     .stab { padding: 12px 14px; font-size: 12px }
   }
- 
+
   /* ── MOBILE iPhone/Android < 768px ── */
   @media (max-width: 834px) {
     header        { padding: 10px 12px; height: auto; flex-wrap: wrap; gap: 8px }
@@ -211,7 +211,7 @@
     div[style*="padding:20px"]                   { padding: 12px !important }
     div[style*="width:220px"]                    { width: 100% !important }
   }
- 
+
   /* ── SMALL PHONE < 480px ── */
   @media (max-width: 480px) {
     .hdr-title    { width: 100% }
@@ -221,7 +221,23 @@
     .btn-row      { flex-direction: column }
     .btn-row .btn { width: 100%; justify-content: center }
   }
- 
+
+  /* ── SEARCHABLE DROPDOWN ── */
+  .sel-wrap{position:relative;width:100%}
+  .sel-display{width:100%;background:var(--surface);border:1px solid var(--border-dark);border-radius:var(--r);color:var(--text);font-family:var(--font);font-size:13px;padding:8px 32px 8px 11px;cursor:pointer;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:0;display:flex;align-items:center;justify-content:space-between;transition:border-color .15s,box-shadow .15s}
+  .sel-display:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(29,78,216,.1);outline:none}
+  .sel-display .arrow{font-size:10px;color:var(--text-dim);margin-left:6px;flex-shrink:0}
+  .sel-panel{display:none;position:absolute;top:calc(100% + 2px);left:0;right:0;background:var(--surface);border:1px solid var(--border-dark);border-radius:var(--r);box-shadow:var(--shd);z-index:9999;overflow:hidden}
+  .sel-panel.open{display:block}
+  .sel-search{width:100%;border:none;border-bottom:1px solid var(--border);padding:9px 12px;font-family:var(--font);font-size:13px;outline:none;background:var(--surface2);color:var(--text)}
+  .sel-search::placeholder{color:var(--text-light)}
+  .sel-list{max-height:220px;overflow-y:auto}
+  .sel-opt{padding:9px 12px;font-size:13px;cursor:pointer;color:var(--text);transition:background .1s}
+  .sel-opt:hover{background:var(--blue-light);color:var(--blue)}
+  .sel-opt.selected{background:var(--blue-light);color:var(--blue);font-weight:600}
+  .sel-opt.placeholder{color:var(--text-dim)}
+  .sel-none{padding:12px;font-size:12px;color:var(--text-light);text-align:center}
+
 </style>
 </head>
 <body>
@@ -320,7 +336,17 @@
         <div class="shd">Stock Transaction</div>
         <div class="card">
           <label class="fl">Select Item <span class="req">*</span></label>
-          <select id="tx-item" onchange="onItemSel()"><option value="">— Select registered item —</option></select>
+          <div class="sel-wrap" id="tx-item-wrap">
+            <button type="button" class="sel-display" id="tx-item-btn" onclick="toggleSelPanel()">
+              <span id="tx-item-label" style="color:var(--text-dim)">— Select registered item —</span>
+              <span class="arrow">▼</span>
+            </button>
+            <div class="sel-panel" id="tx-item-panel">
+              <input type="text" class="sel-search" id="tx-item-search" placeholder="🔍 Search item..." oninput="filterSelOpts()" autocomplete="off">
+              <div class="sel-list" id="tx-item-list"></div>
+            </div>
+          </div>
+          <input type="hidden" id="tx-item" value="">
           <div class="preview" id="item-preview">
             <div class="prow"><span class="plbl">Code / Model</span><span class="pval" id="prev-code">—</span></div>
             <div class="prow"><span class="plbl">Category</span><span class="pval" id="prev-cat">—</span></div>
@@ -739,6 +765,9 @@
       document.getElementById('tx-qty').value = '1';
       document.getElementById('tx-remark').value = '';
       document.getElementById('tx-date').value = todayStr();
+      document.getElementById('tx-item').value = '';
+      document.getElementById('tx-item-label').textContent = '— Select registered item —';
+      document.getElementById('tx-item-label').style.color = 'var(--text-dim)';
     } catch (err) { showToast('Error: ' + err.message, 'tout'); }
     loading(false);
   }
@@ -960,6 +989,75 @@
   function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
   function e(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
   function showToast(msg,cls){const t=document.getElementById('toast');t.textContent=msg;t.className='show '+cls;clearTimeout(t._t);t._t=setTimeout(()=>t.className='',3200);}
+
+
+  // ── SEARCHABLE ITEM DROPDOWN ──
+  function populateSel() {
+    const list = document.getElementById('tx-item-list');
+    const curVal = document.getElementById('tx-item').value;
+    const q = (document.getElementById('tx-item-search')?.value || '').toLowerCase();
+    const items_sorted = Object.values(items).sort((a,b) => a.name.localeCompare(b.name));
+    const filtered = q ? items_sorted.filter(it => it.name.toLowerCase().includes(q) || it.code.toLowerCase().includes(q)) : items_sorted;
+
+    list.innerHTML = '';
+
+    // Placeholder option
+    if (!q) {
+      const ph = document.createElement('div');
+      ph.className = 'sel-opt placeholder';
+      ph.textContent = '— Select registered item —';
+      ph.onclick = () => { selectSelOpt('', '— Select registered item —'); };
+      list.appendChild(ph);
+    }
+
+    if (!filtered.length) {
+      list.innerHTML += '<div class="sel-none">No items found</div>';
+      return;
+    }
+
+    filtered.forEach(it => {
+      const d = document.createElement('div');
+      d.className = 'sel-opt' + (it.key === curVal ? ' selected' : '');
+      d.textContent = it.name + '  [' + it.code + ']';
+      d.onclick = () => selectSelOpt(it.key, it.name + '  [' + it.code + ']');
+      list.appendChild(d);
+    });
+  }
+
+  function toggleSelPanel() {
+    const panel = document.getElementById('tx-item-panel');
+    const isOpen = panel.classList.contains('open');
+    if (isOpen) {
+      closeSelPanel();
+    } else {
+      panel.classList.add('open');
+      document.getElementById('tx-item-search').value = '';
+      populateSel();
+      setTimeout(() => document.getElementById('tx-item-search').focus(), 50);
+    }
+  }
+
+  function closeSelPanel() {
+    document.getElementById('tx-item-panel')?.classList.remove('open');
+  }
+
+  function filterSelOpts() {
+    populateSel();
+  }
+
+  function selectSelOpt(val, label) {
+    document.getElementById('tx-item').value = val;
+    const lbl = document.getElementById('tx-item-label');
+    lbl.textContent = label;
+    lbl.style.color = val ? 'var(--text)' : 'var(--text-dim)';
+    closeSelPanel();
+    onItemSel();
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (ev) => {
+    if (!ev.target.closest('#tx-item-wrap')) closeSelPanel();
+  });
 
   // ── INIT ──
   document.getElementById('tx-date').value = todayStr();
