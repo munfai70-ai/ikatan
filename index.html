@@ -119,16 +119,60 @@
      RESPONSIVE — tablet, phone, small phone
      CSS only — no logic/function changes
   ═══════════════════════════════════════ */
-
-  /* ── TABLET iPad 768–1024px ── */
-  @media (max-width: 1024px) {
-    .two-col { grid-template-columns: 280px 1fr }
-    header   { padding: 0 16px }
-    .nav     { padding: 0 16px }
+ 
+  /* ── TABLET iPad 11-inch LANDSCAPE only (835–1194px) ── */
+  /* Portrait (≤834px) falls into mobile styles below       */
+  @media (min-width: 835px) and (max-width: 1194px) {
+ 
+    /* Header — single row, comfortable */
+    header          { padding: 0 20px; gap: 12px }
+    .hdr-title h1   { font-size: 13px }
+    .hdr-title p    { font-size: 10px }
+    .stat           { padding: 5px 12px; min-width: 64px }
+    .stat .v        { font-size: 18px }
+    .stat .l        { font-size: 9px }
+ 
+    /* Nav */
+    .nav  { padding: 0 20px }
+    .ntab { padding: 12px 16px; font-size: 12px }
+ 
+    /* Two-column — keep side by side like desktop */
+    .two-col { grid-template-columns: 300px 1fr }
+    .lpane   { padding: 18px }
+ 
+    /* Log toolbar — keep inline */
+    .logtop             { padding: 10px 20px; gap: 10px }
+    .logtop select      { width: 140px !important }
+    .logtop .srch input { width: 180px !important }
+ 
+    /* Tables */
+    thead th { padding: 8px 10px; font-size: 11px }
+    tbody td  { padding: 10px 10px; font-size: 12px }
+ 
+    /* Card form */
+    .card { padding: 16px }
+ 
+    /* KPI cards — 4 columns */
+    div[style*="grid-template-columns:repeat(4"] { gap: 10px !important; padding: 12px !important }
+ 
+    /* Summary margin */
+    div[style*="margin:0 16px 16px"] { margin: 0 12px 12px !important }
+ 
+    /* Right pane padding */
+    div[style*="padding:20px"] { padding: 16px !important }
+ 
+    /* Search box */
+    div[style*="width:220px"] { width: 190px !important }
+ 
+    /* Modal */
+    .modal { width: 500px }
+ 
+    /* Stabs */
+    .stab { padding: 12px 14px; font-size: 12px }
   }
-
+ 
   /* ── MOBILE iPhone/Android < 768px ── */
-  @media (max-width: 768px) {
+  @media (max-width: 834px) {
     header        { padding: 10px 12px; height: auto; flex-wrap: wrap; gap: 8px }
     .hdr-title h1 { font-size: 12px }
     .hdr-title p  { font-size: 10px }
@@ -167,7 +211,7 @@
     div[style*="padding:20px"]                   { padding: 12px !important }
     div[style*="width:220px"]                    { width: 100% !important }
   }
-
+ 
   /* ── SMALL PHONE < 480px ── */
   @media (max-width: 480px) {
     .hdr-title    { width: 100% }
@@ -177,7 +221,7 @@
     .btn-row      { flex-direction: column }
     .btn-row .btn { width: 100%; justify-content: center }
   }
-
+ 
 </style>
 </head>
 <body>
