@@ -114,6 +114,70 @@
   @keyframes spin{to{transform:rotate(360deg)}}
   .spinner{width:44px;height:44px;border:4px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
   ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--surface2)}::-webkit-scrollbar-thumb{background:var(--border-dark);border-radius:4px}
+
+  /* ═══════════════════════════════════════
+     RESPONSIVE — tablet, phone, small phone
+     CSS only — no logic/function changes
+  ═══════════════════════════════════════ */
+
+  /* ── TABLET iPad 768–1024px ── */
+  @media (max-width: 1024px) {
+    .two-col { grid-template-columns: 280px 1fr }
+    header   { padding: 0 16px }
+    .nav     { padding: 0 16px }
+  }
+
+  /* ── MOBILE iPhone/Android < 768px ── */
+  @media (max-width: 768px) {
+    header        { padding: 10px 12px; height: auto; flex-wrap: wrap; gap: 8px }
+    .hdr-title h1 { font-size: 12px }
+    .hdr-title p  { font-size: 10px }
+    .hdr-stats    { gap: 4px }
+    .stat         { padding: 4px 8px; min-width: 52px }
+    .stat .v      { font-size: 15px }
+    .stat .l      { font-size: 8px }
+    .nav          { padding: 0 4px; overflow-x: auto; -webkit-overflow-scrolling: touch }
+    .ntab         { padding: 10px 10px; font-size: 11px; white-space: nowrap; flex-shrink: 0 }
+    .two-col      { display: flex !important; flex-direction: column !important }
+    .lpane        { border-right: none; border-bottom: 1px solid var(--border); padding: 14px }
+    .logtop                 { flex-direction: column; gap: 8px; padding: 10px 12px }
+    .logtop > div           { width: 100%; flex-wrap: wrap; gap: 6px }
+    .logtop select          { width: 100% !important; margin: 0 }
+    .logtop .srch           { width: 100% }
+    .logtop .srch input     { width: 100% !important; margin: 0 }
+    .logtop .btn            { width: 100%; justify-content: center }
+    .log-item  { padding: 10px 12px; gap: 8px }
+    .lname     { font-size: 12px }
+    .ldetail   { font-size: 10px }
+    .lqty      { font-size: 13px }
+    .ltime     { font-size: 9px }
+    .log-hbtns { display: none !important }
+    .stabs     { padding: 0 8px }
+    .stab      { padding: 10px 10px; font-size: 11px }
+    .abar      { margin: 8px 8px 0; font-size: 11px }
+    thead th   { padding: 6px 8px; font-size: 9px }
+    tbody td   { padding: 8px; font-size: 11px }
+    .pills     { gap: 4px }
+    .pill      { padding: 3px 8px; font-size: 10px }
+    .card      { padding: 14px }
+    input, select, textarea { font-size: 14px }
+    .modal     { padding: 18px; width: 96vw; max-height: 88vh; overflow-y: auto }
+    div[style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2,1fr) !important; gap: 8px !important; padding: 10px !important }
+    div[style*="margin:0 16px 16px"]             { margin: 0 8px 8px !important }
+    div[style*="padding:20px"]                   { padding: 12px !important }
+    div[style*="width:220px"]                    { width: 100% !important }
+  }
+
+  /* ── SMALL PHONE < 480px ── */
+  @media (max-width: 480px) {
+    .hdr-title    { width: 100% }
+    .hdr-stats    { width: 100% }
+    .stat         { flex: 1 }
+    .row2         { grid-template-columns: 1fr }
+    .btn-row      { flex-direction: column }
+    .btn-row .btn { width: 100%; justify-content: center }
+  }
+
 </style>
 </head>
 <body>
