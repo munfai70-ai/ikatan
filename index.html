@@ -284,10 +284,7 @@
               <option value="Pressure Gauge">Pressure Gauge</option><option value="Compressor Parts">Compressor Parts</option>
               <option value="Fitting">Fitting</option><option value="Gasket / Seal">Gasket / Seal</option>
               <option value="Bolt / Fastener">Bolt / Fastener</option><option value="Instrument">Instrument</option>
-              <option value="Electrical">Electrical</option>
-              <option value="Safety Relief">Safety Relief</option>
-              <option value="Equipment">Equipment</option>
-              <option value="oring">oring</option>
+              <option value="Electrical">Electrical</option><option value="Safety Relief">Safety Relief</option>
               <option value="Other">Other</option>
             </select>
           </div>
@@ -493,17 +490,25 @@
 
 <script>
   // ============================================================
-  // SUPABASE CONNECTION
-  // Replace these two values with your real Supabase credentials
+  // SUPABASE CONNECTION - Values injected by Netlify Edge Function
+  // Do NOT replace these placeholders - they are filled automatically
   // ============================================================
-  const SUPABASE_URL = 'https://bwvnhdobidjbojyvmzxc.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3dm5oZG9iaWRqYm9qeXZtenhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzODgwMjIsImV4cCI6MjA5Mzk2NDAyMn0.eNezIG70Tr7KdWikzr9UFsk_vlVwyRn1r9Up9Qi_iFg';
+  const SUPABASE_URL = '__SUPABASE_URL__';
+  const SUPABASE_KEY = '__SUPABASE_KEY__';
   // ============================================================
 
-  const { createClient } = supabase;
-  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-
+  let db = null;
   let items = {}, stock = {}, txLog = [], activeFilter = 'ALL';
+
+  function initDB() {
+    if (!SUPABASE_URL || SUPABASE_URL === '__SUPABASE_URL__') {
+      console.error('Supabase URL not injected');
+      return false;
+    }
+    const { createClient } = supabase;
+    db = createClient(SUPABASE_URL, SUPABASE_KEY);
+    return true;
+  }
 
   // ── LOADING ──
   function loading(on, msg) {
@@ -605,6 +610,23 @@
     if (!name) { showToast('Item name is required.', 'tout'); return; }
     if (!code) { showToast('Item code is required.', 'tout'); return; }
     const key = ek || ('item-' + Date.now());
+
+    // ── DUPLICATE CHECK ──
+    const allItems = Object.values(items);
+    const dupName = allItems.find(it =>
+      it.name.trim().toLowerCase() === name.toLowerCase() && it.key !== ek
+    );
+    const dupCode = allItems.find(it =>
+      it.code.trim().toLowerCase() === code.toLowerCase() && it.key !== ek
+    );
+    if (dupName) {
+      showToast('Duplicate! Item name "' + name + '" already exists.', 'tout'); return;
+    }
+    if (dupCode) {
+      showToast('Duplicate! Item code "' + code + '" already used by "' + dupCode.name + '".', 'tout'); return;
+    }
+    // ── END DUPLICATE CHECK ──
+
     loading(true, 'Saving item...');
     try {
       const payload = { id: key, name, code, category: cat, unit, min_level: min, remark };
@@ -1061,6 +1083,24 @@
 
   // ── INIT ──
   document.getElementById('tx-date').value = todayStr();
+
+  // Password protection
+  const APP_PASS = '__APP_PASSWORD__';
+
+  // Safety check - if placeholder not replaced, skip password (dev mode)
+  if (APP_PASS !== '__APP_PASSWORD__') {
+    const AUTH = sessionStorage.getItem('auth');
+    if (AUTH !== APP_PASS) {
+      const input = prompt('Enter password to access Inventory System:');
+      if (input === APP_PASS) {
+        sessionStorage.setItem('auth', APP_PASS);
+      } else {
+        document.body.innerHTML = '<div style="text-align:center;margin-top:200px;font-family:Inter,sans-serif"><h2 style="color:#b91c1c">Access Denied</h2><p style="color:#6b7280;margin-top:8px">Incorrect password.</p></div>';
+        throw new Error('Unauthorized');
+      }
+    }
+  }
+
   loadAll().then(() => {
     renderMaster(); populateSel(); renderInv(); renderLog(); renderSummary(); updateStats();
   });
