@@ -614,11 +614,12 @@
     // ── DUPLICATE CHECK ──
     const allItems = Object.values(items);
     const dupName = allItems.find(it =>
-      it.name.trim().toLowerCase() === name.toLowerCase() && it.key !== ek
+      it.name.trim().toLowerCase() === name.toLowerCase()
     );
     const dupCode = allItems.find(it =>
-      it.code.trim().toLowerCase() === code.toLowerCase() && it.key !== ek
+      it.code.trim().toLowerCase() === code.toLowerCase()
     );
+    
     if (dupName) {
       showToast('Duplicate! Item name "' + name + '" already exists.', 'tout'); return;
     }
