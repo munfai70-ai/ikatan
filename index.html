@@ -605,24 +605,6 @@
     if (!name) { showToast('Item name is required.', 'tout'); return; }
     if (!code) { showToast('Item code is required.', 'tout'); return; }
     const key = ek || ('item-' + Date.now());
-
-    // ── DUPLICATE CHECK ──
-    const allItems = Object.values(items);
-    const dupName = allItems.find(it =>
-      it.name.trim().toLowerCase() === name.toLowerCase() && it.key !== ek
-    );
-    const dupCode = allItems.find(it =>
-      it.code.trim().toLowerCase() === code.toLowerCase() && it.key !== ek
-    );
-    
-    if (dupName) {
-      showToast('Duplicate! Item name "' + name + '" already exists.', 'tout'); return;
-    }
-    if (dupCode) {
-      showToast('Duplicate! Item code "' + code + '" already used by "' + dupCode.name + '".', 'tout'); return;
-    }
-
-
     loading(true, 'Saving item...');
     try {
       const payload = { id: key, name, code, category: cat, unit, min_level: min, remark };
