@@ -81,7 +81,7 @@
   .log-bg-edit{background:var(--blue);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;width:72px;gap:2px;font-size:11px;font-weight:700;cursor:pointer;border:none}
   .log-bg-del{background:var(--red);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;width:72px;gap:2px;font-size:11px;font-weight:700;cursor:pointer;border:none}
   .log-bg .ico{font-size:15px}
-  .log-row.swiped .log-bg{pointer-events:all}.log-row.swiped .log-item{transform:translateX(-72px)}
+  .log-row.swiped .log-bg{pointer-events:all}.log-row.swiped .log-item{transform:translateX(-144px)}
   .log-item{display:flex;align-items:center;gap:14px;padding:12px 20px;background:var(--surface);transition:transform .25s ease,background .1s;position:relative;z-index:1;touch-action:pan-y}
   .log-row:hover .log-item{background:#f9fafb}
   .log-hbtns{display:none;gap:6px;flex-shrink:0}.log-row:hover .log-hbtns{display:flex}
@@ -425,7 +425,9 @@
       <button class="btn btn-success" onclick="exportExcel()">&#128190; Export to Excel</button>
     </div>
   </div>
-  <p style="font-size:11px;color:var(--text-dim);padding:8px 20px;background:var(--surface2);border-bottom:1px solid var(--border)"> &#x1F4F1; <strong>Mobile:</strong> Swipe left to Delete &nbsp;|&nbsp; &#x1F5A5; <strong>Desktop:</strong> Hover to reveal Delete </p>
+  <p style="font-size:11px;color:var(--text-dim);padding:8px 20px;background:var(--surface2);border-bottom:1px solid var(--border)">
+    &#x1F4F1; <strong>Mobile:</strong> Swipe left to Edit/Delete &nbsp;|&nbsp; &#x1F5A5; <strong>Desktop:</strong> Hover to reveal Edit/Delete
+  </p>
   <div id="log-body"></div>
   <div id="log-empty" class="empty">No transactions recorded yet.</div>
 </div>
@@ -834,29 +836,24 @@
     em.style.display='none';
     body.innerHTML=list.map(entry=>`
       <div class="log-row" data-idx="${entry._idx}">
-          <div class="log-bg">
-            <button class="log-bg-del" onclick="deleteTx(${entry._idx})">
-              <span class="ico">🗑</span>Delete
-            </button>
+        <div class="log-bg">
+          <button class="log-bg-edit" onclick="openEdit(${entry._idx})"><span class="ico">&#9998;</span>Edit</button>
+          <button class="log-bg-del" onclick="deleteTx(${entry._idx})"><span class="ico">&#128465;</span>Delete</button>
+        </div>
+        <div class="log-item">
+          <span class="ltbadge ${entry.type==='IN'?'lin':'lout'}">${entry.type}</span>
+          <div class="linfo">
+            <div class="lname">${e(entry.name)}</div>
+            <div class="ldetail">${entry.txDate||''} &middot; ${e(entry.code)} &middot; ${e(entry.cat)} &middot; By: ${e(entry.person)}${entry.remark?' &middot; '+e(entry.remark):''}</div>
           </div>
-          <div class="log-item">
-            <span class="ltbadge ${entry.type === 'IN' ? 'lin' : 'lout'}">${entry.type}</span>
-            <div class="linfo">
-              <div class="lname">${escapeHtml(entry.name)}</div>
-              <div class="ldetail">
-                ${escapeHtml(entry.txDate || '')} · ${escapeHtml(entry.code)} · ${escapeHtml(entry.cat)} · By: ${escapeHtml(entry.person)}
-                ${entry.remark ? ' · ' + escapeHtml(entry.remark) : ''}
-              </div>
-            </div>
-            <div class="log-hbtns">
-              <button class="lhb lhb-d" onclick="deleteTx(${entry._idx})">Delete</button>
-            </div>
-            <div class="lqty" style="color:${entry.type === 'IN' ? 'var(--green)' : 'var(--red)'}">
-              ${entry.type === 'IN' ? '+' : '−'}${entry.qty} ${escapeHtml(entry.unit || '')}
-            </div>
-            <div class="ltime">${escapeHtml(entry.time)}</div>
+          <div class="log-hbtns">
+            <button class="lhb lhb-e" onclick="openEdit(${entry._idx})">Edit</button>
+            <button class="lhb lhb-d" onclick="deleteTx(${entry._idx})">Delete</button>
           </div>
-        </div>`).join('');
+          <div class="lqty" style="color:${entry.type==='IN'?'var(--green)':'var(--red)'}">${entry.type==='IN'?'+':'−'}${entry.qty} ${e(entry.unit||'')}</div>
+          <div class="ltime">${entry.time}</div>
+        </div>
+      </div>`).join('');
     document.querySelectorAll('.log-row').forEach(row=>{
       let startX=0,startY=0,moved=false;
       row.addEventListener('touchstart',ev=>{startX=ev.touches[0].clientX;startY=ev.touches[0].clientY;moved=false;},{passive:true});
